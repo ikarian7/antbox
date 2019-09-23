@@ -31,6 +31,7 @@ public class Ant : MonoBehaviour
     float lightDuration, feedbackDuration;
     [SerializeField] public bool BeingLit { get { return lightDuration > 0f; } }
     [SerializeField] public bool IsLit { get { return highlight.activeSelf; } }
+    static Stack<Ant> stackAnts = new Stack<Ant>();
 
     void Awake()
     {
@@ -79,6 +80,7 @@ public class Ant : MonoBehaviour
                     antsLit.Add(this);
 
                     if(!passedOn) {
+                        Debug.Log("Finsihed?");
                         DoFeedback();
                     }
                 } else {
@@ -167,6 +169,7 @@ public class Ant : MonoBehaviour
             {
                 closest.LightFrom(previous);
                 passedOn = true;
+                stackAnts.Push(previous);
             }
 
         } while (closest != null);
@@ -205,8 +208,14 @@ public class Ant : MonoBehaviour
     /// </summary>
     public void DoFeedback()
     {
+        Debug.Log("StackAnts dofeedback count: " + stackAnts.Count);
         // Get last ant from stack and call FeedbackTo on it
-        FeedbackTo(antsBeingLit[0]);
+        while (stackAnts.Count > 0)
+        {
+            Ant poppedAnt = stackAnts.Pop();
+            Debug.Log(poppedAnt.name);
+            FeedbackTo(poppedAnt);
+        }
     }
 
     /// <summary>
