@@ -80,7 +80,6 @@ public class Ant : MonoBehaviour
                     antsLit.Add(this);
 
                     if(!passedOn) {
-                        Debug.Log("Finsihed?");
                         DoFeedback();
                     }
                 } else {
@@ -118,6 +117,7 @@ public class Ant : MonoBehaviour
             highlight.SetActive(true);
 
             ChainLightning();
+            stackAnts.Push(this);
         }
     }
 
@@ -143,6 +143,7 @@ public class Ant : MonoBehaviour
         return closest;
     }
 
+    private static Ant lastAnt = null;
     /// <summary>
     /// Cast chain lightning from an ant
     /// </summary>
@@ -169,8 +170,12 @@ public class Ant : MonoBehaviour
             {
                 closest.LightFrom(previous);
                 passedOn = true;
-                stackAnts.Push(previous);
             }
+            else
+            {
+                lastAnt = previous;
+            }
+
 
         } while (closest != null);
 
@@ -208,13 +213,22 @@ public class Ant : MonoBehaviour
     /// </summary>
     public void DoFeedback()
     {
-        Debug.Log("StackAnts dofeedback count: " + stackAnts.Count);
-        // Get last ant from stack and call FeedbackTo on it
-        while (stackAnts.Count > 0)
+        stackAnts.Push(this);
+
+        if (lastAnt == this)
         {
-            Ant poppedAnt = stackAnts.Pop();
-            Debug.Log(poppedAnt.name);
-            FeedbackTo(poppedAnt);
+            Ant previousAnt = this;
+            // Get last ant from stack and call FeedbackTo on it
+            while (stackAnts.Count > 1)
+            {
+                Ant poppedAnt = stackAnts.Pop();
+                if (previousAnt == null)
+                    FeedbackTo(poppedAnt);
+                else
+                    previousAnt.FeedbackTo(poppedAnt);
+
+                previousAnt = poppedAnt;
+            }
         }
     }
 
