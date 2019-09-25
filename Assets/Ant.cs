@@ -144,18 +144,25 @@ public class Ant : MonoBehaviour
     }
 
     private static Ant lastAnt = null;
+    private static int callIndexCurrentAnt = 0;
+    private static int callIndexClosest = 0;
     /// <summary>
     /// Cast chain lightning from an ant
     /// </summary>
-    public void ChainLightning(Ant currentNextAnt)
+    public void ChainLightning(Ant currentAnt)
     {
-        Ant closest = currentNextAnt.FindClosestUnlitAnt();
-        Ant currentAnt = currentNextAnt;
+        Ant closest = currentAnt.FindClosestUnlitAnt();
 
         if (closest != null)
         {
             closest.LightFrom(currentAnt);
             passedOn = true;
+            Debug.Log("Callindex voor currentAnt call: " + callIndexCurrentAnt);
+            callIndexCurrentAnt++;
+            ChainLightning(currentAnt);
+
+            Debug.Log("Callindex voor closest call: " + callIndexClosest);
+            callIndexClosest++;
             ChainLightning(closest);
         }
         else
@@ -163,6 +170,7 @@ public class Ant : MonoBehaviour
             lastAnt = currentAnt;
             return;
         }
+
     }
 
     /// <summary>
