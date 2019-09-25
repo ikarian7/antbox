@@ -116,7 +116,7 @@ public class Ant : MonoBehaviour
         if(!lightningActive && !highlight.activeSelf) {
             highlight.SetActive(true);
 
-            ChainLightning();
+            ChainLightning(this);
             stackAnts.Push(this);
         }
     }
@@ -147,38 +147,22 @@ public class Ant : MonoBehaviour
     /// <summary>
     /// Cast chain lightning from an ant
     /// </summary>
-    public void ChainLightning()
+    public void ChainLightning(Ant currentNextAnt)
     {
-        Ant closest = null;
+        Ant closest = currentNextAnt.FindClosestUnlitAnt();
+        Ant currentAnt = currentNextAnt;
 
-        do
+        if (closest != null)
         {
-            Ant previous;
-
-            if (closest == null)
-            {
-                closest = this.FindClosestUnlitAnt();
-                previous = this;
-            }
-            else
-            {
-                previous = closest;
-                closest = closest.FindClosestUnlitAnt();
-            }
-
-            if (closest != null)
-            {
-                closest.LightFrom(previous);
-                passedOn = true;
-            }
-            else
-            {
-                lastAnt = previous;
-            }
-
-
-        } while (closest != null);
-
+            closest.LightFrom(currentAnt);
+            passedOn = true;
+            ChainLightning(closest);
+        }
+        else
+        {
+            lastAnt = currentAnt;
+            return;
+        }
     }
 
     /// <summary>
