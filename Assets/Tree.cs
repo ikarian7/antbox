@@ -14,7 +14,6 @@ public class TreeNode
 
     private static List<TreeNode> allNodes = new List<TreeNode>();
 
-
     public TreeNode(Ant val)
     {
         this.value = val;
@@ -30,29 +29,9 @@ public class TreeNode
         allNodes.Add(node);
     }
 
-    public TreeNode GetChild(int index)
-    {
-        return children[index];
-    }
-
     public TreeNode FindByValue(Ant ant)
     {
         return allNodes.Find(x => ant == x.value);
-    }
-
-    public List<TreeNode> GetNodesThatArentParents()
-    {
-        List<TreeNode> newList = new List<TreeNode>();
-
-        foreach (TreeNode node in allNodes)
-        {
-            if (node.children.Count == 0)
-            {
-                newList.Add(node);
-            }
-        }
-
-        return newList;
     }
 }
 
