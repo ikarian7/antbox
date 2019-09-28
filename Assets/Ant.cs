@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -116,6 +117,9 @@ public class Ant : MonoBehaviour
         if(!lightningActive && !highlight.activeSelf) {
             highlight.SetActive(true);
 
+            treeRoot = new TreeNode(this);
+            currentParent = treeRoot;
+
             ChainLightning(this);
             stackAnts.Push(this);
         }
@@ -143,9 +147,24 @@ public class Ant : MonoBehaviour
         return closest;
     }
 
+    public void TravelThroughNode(TreeNode parent)
+    {
+        Debug.Log("At parent node: " + parent.value.name);
+
+        foreach (TreeNode child in parent.children)
+        {
+            Debug.Log("Feedback to: " + parent.value.name);
+            child.value.FeedbackTo(parent.value);
+            TravelThroughNode(child);
+        }
+    }
+
     private static Ant lastAnt = null;
-    private static int callIndexCurrentAnt = 0;
+    private static int callIndex = 0;
     private static int callIndexClosest = 0;
+    private static TreeNode treeRoot;
+    private static TreeNode currentParent;
+
     /// <summary>
     /// Cast chain lightning from an ant
     /// </summary>
@@ -157,20 +176,16 @@ public class Ant : MonoBehaviour
         {
             closest.LightFrom(currentAnt);
             passedOn = true;
-            Debug.Log("Callindex voor currentAnt call: " + callIndexCurrentAnt);
-            callIndexCurrentAnt++;
+
+            currentParent = treeRoot.FindByValue(currentAnt);
+            currentParent.Add(new TreeNode(closest));
+
             ChainLightning(currentAnt);
 
-            Debug.Log("Callindex voor closest call: " + callIndexClosest);
-            callIndexClosest++;
             ChainLightning(closest);
         }
-        else
-        {
-            lastAnt = currentAnt;
-            return;
-        }
 
+        callIndex++;
     }
 
     /// <summary>
@@ -205,22 +220,11 @@ public class Ant : MonoBehaviour
     /// </summary>
     public void DoFeedback()
     {
-        stackAnts.Push(this);
-
-        if (lastAnt == this)
+        if (!lightningActive)
         {
-            Ant previousAnt = this;
-            // Get last ant from stack and call FeedbackTo on it
-            while (stackAnts.Count > 1)
-            {
-                Ant poppedAnt = stackAnts.Pop();
-                if (previousAnt == null)
-                    FeedbackTo(poppedAnt);
-                else
-                    previousAnt.FeedbackTo(poppedAnt);
+            TreeNode currentNode = treeRoot;
 
-                previousAnt = poppedAnt;
-            }
+            TravelThroughNode(treeRoot);
         }
     }
 
@@ -275,4 +279,8 @@ public class Ant : MonoBehaviour
             }
         }
     }
+
+ 
+
 }
+
